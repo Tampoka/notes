@@ -5,30 +5,39 @@ const {
   ForbiddenError,
 } = require('apollo-server-express');
 require('dotenv').config();
+const mongoose = require('mongoose');
 
 const gravatar = require('../util/gravatar');
 module.exports = {
-  newNote: async (parent, args, { models }) => {
+  newNote: async (parent, args, { models,user }) => {
+    // Если в контексте нет пользователя, выбрасываем AuthenticationError
+    if (!user) {
+      throw new AuthenticationError('You must be signed in to create a note');
+    }
     return await models.Note.create({
       content: args.content,
-      author: 'Traveler',
+      author: new mongoose.Types.ObjectId(user.id),
     });
-    // let noteValue = {
-    //   id: String(notes.length + 1),
-    //   content: args.content,
-    //   author: 'Traveler',
-    // };
-    // notes.push(noteValue);
-    // return noteValue;
   },
-  updateNote: async (parent, args, { models }) => {
+  updateNote: async (parent, {id,content}, { models,user }) => {
+    // Если не пользователь, выбрасываем ошибку авторизации
+    if (!user) {
+      throw new AuthenticationError('You must be signed in to delete a note');
+    }
+    // Находим заметку
+    const note = await models.Note.findById(id);
+// Если владелец заметки и текущий пользователь не совпадают, выбрасываем
+// запрет на действие
+    if (note && String(note.author) !== user.id) {
+      throw new ForbiddenError("You don't have permissions to update the note");
+    }
     return await models.Note.findOneAndUpdate(
       {
-        _id: args.id,
+        _id: id,
       },
       {
         $set: {
-          content: args.content,
+          content,
         },
       },
       {
@@ -36,12 +45,24 @@ module.exports = {
       }
     );
   },
-  deleteNote: async (parent, args, { models }) => {
-    // return await models.Note.findOneAndRemove({ _id: args.id });
+  deleteNote: async (parent, {id}, { models,user }) => {
+    // Если не пользователь, выбрасываем ошибку авторизации
+    if (!user) {
+      throw new AuthenticationError('You must be signed in to delete a note');
+    }
+    // Находим заметку
+    const note = await models.Note.findById(id);
+// Если владелец заметки и текущий пользователь не совпадают, выбрасываем
+// запрет на действие
+    if (note && String(note.author) !== user.id) {
+      throw new ForbiddenError("You don't have permissions to delete the note");
+    }
     try {
-      await models.Note.findOneAndRemove({ _id: args.id });
+      // Если все проверки проходят, удаляем заметку
+      await note.remove();
       return true;
     } catch (e) {
+      // Если в процессе возникает ошибка, возвращаем false
       return false;
     }
   },
