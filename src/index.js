@@ -2,6 +2,8 @@ const express = require('express');
 const {ApolloServer} = require('apollo-server-express');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const helmet = require('helmet');
+const cors = require('cors');
 
 // Получаем информацию пользователя из JWT
 const getUser = token => {
@@ -25,6 +27,10 @@ const port = process.env.PORT || 4000;
 const DB_HOST = process.env.DB_HOST;
 
 const app = express();
+// Устанавливаем промежуточное ПО Helmet
+app.use(helmet());
+// Устанавливаем промежуточное ПО CORS
+app.use(cors());
 
 db.connect(DB_HOST);
 
