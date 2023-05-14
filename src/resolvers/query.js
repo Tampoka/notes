@@ -2,19 +2,19 @@ module.exports = {
   notes: async (parent, args, { models }) => {
     return await models.Note.find();
   },
-  note: async (parent, args, { models }) => {
-    return await models.Note.findById(args.id);
+  note: async (parent, {id}, { models }) => {
+    return models.Note.findById(id);
   },
   user: async (parent, { username }, { models }) => {
     // Находим пользователя по имени
-    return await models.User.findOne({ username });
+    return  models.User.findOne({ username })
   },
   users: async (parent, args, { models }) => {
     // Находим всех пользователей
-    return await models.User.find({});
+    return  models.User.find({})
   },
   me: async (parent, args, { models, user }) => {
     // Находим пользователя по текущему пользователю
-    return await models.User.findById(user.id);
+    return  models.User.findById(user.id);
   }
 };

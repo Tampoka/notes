@@ -31,18 +31,18 @@ module.exports = {
     if (note && String(note.author) !== user.id) {
       throw new ForbiddenError("You don't have permissions to update the note");
     }
-    return await models.Note.findOneAndUpdate(
-      {
-        _id: id,
-      },
-      {
-        $set: {
-          content,
+    return models.Note.findOneAndUpdate(
+        {
+          _id: id,
         },
-      },
-      {
-        new: true,
-      }
+        {
+          $set: {
+            content,
+          },
+        },
+        {
+          new: true,
+        }
     );
   },
   deleteNote: async (parent, {id}, { models,user }) => {
@@ -107,5 +107,50 @@ module.exports = {
     }
     // Создаем и возвращаем json web token
     return jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  },
+  toggleFavorite: async (parent, { id }, { models, user }) => {
+// Если контекст пользователя не передан, выбрасываем ошибку аутентификации
+    if (!user) {
+      throw new AuthenticationError();
+    }
+// Проверяем, отмечал ли пользователь заметку как избранную
+      let noteCheck = await models.Note.findById(id);
+    const hasUser = noteCheck.favoritedBy.indexOf(user.id);
+// Если пользователь есть в списке, удаляем его оттуда и уменьшаем
+// количество избранных на 1
+    if (hasUser >= 0) {
+      return models.Note.findByIdAndUpdate(
+          id,
+          {
+            $pull: {
+              favoritedBy: new mongoose.Types.ObjectId(user.id)
+            },
+            $inc: {
+              favoriteCount: -1
+            }
+          },
+          {
+            // Устанавливаем new в true, чтобы вернуть обновленный документ
+            new: true
+          }
+      );
+        }else {
+// Если пользователя нет в списке, добавляем его туда и увеличиваем
+// количество избранных на 1
+      return models.Note.findByIdAndUpdate(
+          id,
+          {
+            $push: {
+              favoritedBy: new  mongoose.Types.ObjectId(user.id)
+            },
+            $inc: {
+              favoriteCount: 1
+            }
+          },
+          {
+            new: true
+          }
+      ).populate('favoritedBy');
+    }
   }
 };
