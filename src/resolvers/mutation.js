@@ -67,4 +67,24 @@ module.exports = {
       throw new Error('Error creating account');
     }
   },
+  signIn: async (parent, { username, email, password }, { models }) => {
+    if (email) {
+      // Нормализуем email
+      email = email.trim().toLowerCase();
+    }
+    const user = await models.User.findOne({
+      $or: [{ email }, { username }],
+    });
+    // Если пользователь не найден, выбрасываем ошибку аутентификации
+    if (!user) {
+      throw new AuthenticationError('Error signing in');
+    }
+    // Если пароль не совпадает, выбрасываем ошибку аутентификации
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      throw new AuthenticationError('Error signing in');
+    }
+    // Создаем и возвращаем json web token
+    return jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  }
 };
