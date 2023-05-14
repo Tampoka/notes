@@ -4,6 +4,8 @@ require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const cors = require('cors');
+const depthLimit = require('graphql-depth-limit');
+const { createComplexityLimitRule } = require('graphql-validation-complexity');
 
 // Получаем информацию пользователя из JWT
 const getUser = token => {
@@ -36,9 +38,10 @@ db.connect(DB_HOST);
 
 // Настраиваем Apollo Server
 async function startServer() {
-    apolloServer = new ApolloServer({
+    const apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
+        validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
         context: ({req}) => {
             // Получаем токен пользователя из заголовков
             const token = req.headers.authorization;
