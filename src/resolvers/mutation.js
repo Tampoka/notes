@@ -59,7 +59,7 @@ module.exports = {
     }
     try {
       // Если все проверки проходят, удаляем заметку
-      await note.remove();
+      await note.deleteOne();
       return true;
     } catch (e) {
       // Если в процессе возникает ошибка, возвращаем false
