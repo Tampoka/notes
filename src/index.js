@@ -1,6 +1,20 @@
 const express = require('express');
-const { ApolloServer } = require('apollo-server-express');
+const {ApolloServer} = require('apollo-server-express');
 require('dotenv').config();
+const jwt = require('jsonwebtoken');
+
+// Получаем информацию пользователя из JWT
+const getUser = token => {
+    if (token) {
+        try {
+// Возвращаем информацию пользователя из токена
+            return jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+// Если с токеном возникла проблема, выбрасываем ошибку
+            new Error('Session invalid');
+        }
+    }
+};
 
 const db = require('./db');
 const models = require('./models');
@@ -19,24 +33,31 @@ async function startServer() {
     apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
-        context: () => {
-            // Добавление моделей БД в context
-            return {models};
+        context: ({req}) => {
+            // Получаем токен пользователя из заголовков
+            const token = req.headers.authorization;
+// Пытаемся извлечь пользователя с помощью токена
+            const user = getUser(token);
+// Пока что будем выводить информацию о пользователе в консоль:
+            console.log(user);
+// Добавляем модели БД и пользователя в контекст
+            return {models, user};
         },
     });
     await apolloServer.start();
 // Применяем промежуточное ПО Apollo GraphQL и указываем путь к /api
     apolloServer.applyMiddleware({app, path: '/api'});
 }
-    startServer();
+
+startServer();
 
 // app.get('/', (req, res) => {
 //   res.send('Hello World!!!!!');
 // });
 
-    app.listen(port, () => {
-        console.log(
-            // `GraphQL Server running at http://localhost:${port}${apolloServer.graphqlPath}`
-            `GraphQL Server running at http://localhost:${port}/api`
-        );
-    });
+app.listen(port, () => {
+    console.log(
+        // `GraphQL Server running at http://localhost:${port}${apolloServer.graphqlPath}`
+        `GraphQL Server running at http://localhost:${port}/api`
+    );
+});
