@@ -2,11 +2,11 @@
   "name": "notes",
   "version": "1.0.0",
   "description": "GraphQL API for a note taking application",
-  "main": "api/index.js",
+  "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon  --inspect api/index.js",
-    "dev": "supervisor api/index.js",
+    "start": "nodemon  --inspect src/index.js",
+    "dev": "supervisor src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
