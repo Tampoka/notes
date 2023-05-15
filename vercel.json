@@ -3,9 +3,14 @@
   "name": "notes",
   "builds": [
     {
-      "src": "src/index.js",
+      "src": "./index.js",
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/src" }]
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ]
 }
