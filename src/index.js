@@ -69,4 +69,4 @@ app.listen(port, () => {
         // `GraphQL Server running at http://localhost:${port}${apolloServer.graphqlPath}`
         `GraphQL Server running at http://localhost:${port}/api`
     );
-});
+})
