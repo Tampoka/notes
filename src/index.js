@@ -1,6 +1,8 @@
 const express = require('express');
 const {ApolloServer} = require('apollo-server-express');
+import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
 require('dotenv').config();
+const http = require('http');
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -33,7 +35,7 @@ const app = express();
 app.use(helmet());
 // Устанавливаем промежуточное ПО CORS
 app.use(cors());
-
+const httpServer = http.createServer(app);
 db.connect(DB_HOST);
 
 // Настраиваем Apollo Server
@@ -41,6 +43,7 @@ async function startServer() {
     const apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
+        plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
         validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
         context: ({req}) => {
             // Получаем токен пользователя из заголовков
@@ -58,7 +61,7 @@ async function startServer() {
     apolloServer.applyMiddleware({app, path: '/api'});
 }
 
-startServer();
+startServer(app, httpServer);
 
 app.get('/', (req, res) => {
   res.send('Hello World!!!!!');
@@ -69,3 +72,5 @@ app.listen(port, () => {
         `GraphQL Server running at http://localhost:${port}/api`
     );
 })
+
+export default httpServer;
