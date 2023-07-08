@@ -35,6 +35,7 @@ const app = express();
 app.use(helmet());
 // Устанавливаем промежуточное ПО CORS
 app.use(cors());
+app.use(express.json());
 const httpServer = http.createServer(app);
 db.connect(DB_HOST);
 
