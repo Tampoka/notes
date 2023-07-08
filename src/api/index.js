@@ -22,10 +22,10 @@ const getUser = token => {
     }
 };
 
-const db = require('./db');
-const models = require('./models');
-const typeDefs = require('./schema');
-const resolvers = require('./resolvers');
+const db = require('../db');
+const models = require('../models');
+const typeDefs = require('../schema');
+const resolvers = require('../resolvers');
 
 const port = process.env.PORT || 4000;
 const DB_HOST = process.env.DB_HOST;
