@@ -1,9 +1,9 @@
 {
-  "version": 2,
-  "name": "notes",
-  "builds": [
-     { "src": "src/api/**/*.ts", "use": "@now/node" }
-  ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/src/api" }]
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/src/api"
+    }
+  ]
 }
 
