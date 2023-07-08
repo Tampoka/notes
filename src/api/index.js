@@ -1,6 +1,6 @@
 const express = require('express');
 const {ApolloServer} = require('apollo-server-express');
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
+const { ApolloServerPluginDrainHttpServer }= require("apollo-server-core");
 require('dotenv').config();
 const http = require('http');
 const jwt = require('jsonwebtoken');
@@ -74,4 +74,4 @@ app.listen(port, () => {
     );
 })
 
-export default httpServer;
+module.exports=httpServer;
