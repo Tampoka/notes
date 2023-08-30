@@ -1,13 +1,13 @@
 const express = require('express');
 const {ApolloServer} = require('apollo-server-express');
-const { ApolloServerPluginDrainHttpServer }= require("apollo-server-core");
+const {ApolloServerPluginDrainHttpServer} = require("apollo-server-core");
 require('dotenv').config();
 const http = require('http');
 const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const cors = require('cors');
 const depthLimit = require('graphql-depth-limit');
-const { createComplexityLimitRule } = require('graphql-validation-complexity');
+const {createComplexityLimitRule} = require('graphql-validation-complexity');
 
 // Получаем информацию пользователя из JWT
 const getUser = token => {
@@ -44,7 +44,9 @@ async function startServer() {
     const apolloServer = new ApolloServer({
         typeDefs,
         resolvers,
-        plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+        plugins: [ApolloServerPluginDrainHttpServer({httpServer})],
+        introspection: true,
+        playground: true,
         validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
         context: ({req}) => {
             // Получаем токен пользователя из заголовков
@@ -65,7 +67,7 @@ async function startServer() {
 startServer(app, httpServer);
 
 app.get('/', (req, res) => {
-  res.send('Hello World!!!!!');
+    res.send('Hello World!!!!!');
 });
 
 app.listen(port, () => {
@@ -74,4 +76,4 @@ app.listen(port, () => {
     );
 })
 
-module.exports=httpServer;
+module.exports = httpServer;
