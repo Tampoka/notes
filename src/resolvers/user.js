@@ -1,7 +1,7 @@
 module.exports={
     // При запросе разрешается список заметок автора
     notes: async (user, args, { models }) => {
-        return models.Note.find({ author: user._id }).sort({ createdAt: 1 });
+        return models.Note.find({ author: user._id }).sort({ createdAt: -1 });
     },
     // При запросе разрешается список избранных заметок
     favorites: async (user, args, { models }) => {
